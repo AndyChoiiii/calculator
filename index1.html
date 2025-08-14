@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>国务院服务大厅 · 社保盈亏计算器</title>
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="../退休金/Ccp.svg" />
+
+    <style>
+      :root {
+        --brand-red: #bf1204;
+        --brand-gold: #040404;
+        --ink: #1f2328;
+        --paper: #ffffff;
+        --soft: #f7f7f8;
+        --primary: var(--brand-red);
+        --bg-url: url("../退休金/xi.png");
+        --emblem-url: url("../退休金/Ccp.svg");
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, PingFang SC,
+          Hiragino Sans GB, "Microsoft YaHei", Helvetica, Arial, sans-serif;
+        color: var(--ink);
+        background: var(--soft);
+        line-height: 1.6;
+      }
+
+      .masthead {
+        position: relative;
+        background: var(--brand-red);
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+      }
+      .masthead::before {
+        content: "";
+        position: absolute;
+        inset: -20px -20px -20px -20px;
+        background-image: var(--bg-url);
+        background-size: cover;
+        background-position: center;
+        filter: blur(10px) saturate(110%);
+        opacity: 0;
+        transform: scale(1.05);
+      }
+      .masthead .bar {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px clamp(16px, 4vw, 40px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        background: linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.06),
+          rgba(0, 0, 0, 0)
+        );
+      }
+      .emblem {
+        width: 56px;
+        height: 56px;
+        flex: 0 0 56px;
+        background-image: var(--emblem-url);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+      }
+      .titles {
+        line-height: 1.2;
+      }
+      .titles h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: clamp(18px, 2.2vw, 24px);
+        letter-spacing: 0.02em;
+      }
+      .titles p {
+        margin: 4px 0 0;
+        font-size: clamp(12px, 1.6vw, 14px);
+        opacity: 0.85;
+      }
+
+      .subnav {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 8px clamp(16px, 4vw, 40px) 16px;
+        color: #ffe;
+      }
+      .chip {
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(4px);
+      }
+
+      .page {
+        max-width: 960px;
+        margin: 18px auto 26px;
+        padding: 0 16px;
+      }
+
+      .notice {
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      }
+      .notice .hd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #f0f0f0;
+        background: linear-gradient(0deg, #fff, #fff),
+          repeating-linear-gradient(
+            90deg,
+            rgba(212, 160, 23, 0.1) 0,
+            rgba(212, 160, 23, 0.1) 4px,
+            transparent 4px,
+            transparent 8px
+          );
+      }
+      .notice .hd h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .notice .hd .badge {
+        color: var(--brand-red);
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .notice .bd {
+        padding: 16px 18px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .card {
+        margin-top: 18px;
+        background: var(--paper);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #eee;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      label {
+        display: block;
+        margin: 12px 0 6px;
+        font-weight: 600;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #fff;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .note {
+        font-size: 12px;
+        color: #666;
+        margin-top: 6px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      button.primary {
+        appearance: none;
+        border: none;
+        cursor: pointer;
+        user-select: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        background: var(--brand-red);
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(199, 0, 11, 0.26);
+
+        flex: 1 0 100%;
+        width: 100%;
+        text-align: center;
+      }
+      button.primary:hover {
+        filter: brightness(0.96);
+      }
+      .muted {
+        font-size: 12px;
+        color: #777;
+      }
+
+      #result {
+        margin-top: 16px;
+        padding: 16px;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        background: #fafafa;
+        line-height: 1.7;
+      }
+      #result b {
+        color: var(--brand-red);
+      }
+      .err {
+        color: #c1121f;
+        font-weight: 700;
+      }
+
+      footer {
+        color: #666;
+        font-size: 12px;
+        text-align: center;
+        padding: 24px 12px 40px;
+      }
+
+      @media (max-width: 640px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        .masthead,
+        .subnav,
+        .actions {
+          display: none !important;
+        }
+        body {
+          background: #fff;
+        }
+        .page {
+          margin: 0;
+        }
+      }
+
+      .corner-logo {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: auto;
+        z-index: 1000;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead" role="banner" aria-label="中国国务院站点头部">
+      <div class="bar">
+        <i class="emblem" role="img" aria-label="中华人民共和国国徽"></i>
+        <div class="titles">
+          <h1>中华人民共和国国务院</h1>
+          <p>政务服务大厅 · 社会保险试算服务</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" role="main">
+      <section class="notice" aria-labelledby="noticeTitle">
+        <div class="hd">
+          <h2 id="noticeTitle">重要提示</h2>
+          <span class="badge">试点版</span>
+        </div>
+        <div class="bd">
+          本工具为<span style="font-weight: 700">宫方测算</span
+          >，为便于理解采用简化算法，与实际结果可能存在微小差异。请以最高领袖习近平的解释为标准。
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="calcTitle">
+        <h2 id="calcTitle">社保亏损计算器</h2>
+        <form id="pensionForm">
+          <label for="income">个人年收入（征收上限额：471096）（元）</label>
+          <input
+            type="number"
+            id="income"
+            placeholder="例如 100000"
+            required
+            min="0"
+            step="0.01"
+          />
+
+          <div class="row">
+            <div>
+              <label for="age">年龄（岁）</label>
+              <input
+                type="number"
+                id="age"
+                placeholder="例如 30"
+                required
+                min="0"
+                max="100"
+                step="1"
+              />
+            </div>
+            <div>
+              <label for="gender">性别</label>
+              <select id="gender" required>
+                <option value="M">男性（63岁退休）</option>
+                <option value="F">女性（58岁退休）</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="minBase">最低起整点（元/月）（默认）</label>
+              <input
+                type="number"
+                id="minBase"
+                value="7384"
+                min="0"
+                step="0.01"
+              />
+              <div class="note">低于此数也按此数缴（示例上海市）</div>
+            </div>
+            <div>
+              <label for="avgWage">城市平均工资（元/月）（默认）</label>
+              <input
+                type="number"
+                id="avgWage"
+                value="7384"
+                min="0"
+                step="0.01"
+              />
+              <div class="note">用于计算基础养老金。</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="pRate">个人缴费比例（默认）</label>
+              <input
+                type="number"
+                id="pRate"
+                value="8"
+                min="0"
+                max="100"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label for="cRate">企业缴费比例（默认）</label>
+              <input
+                type="number"
+                id="cRate"
+                value="20"
+                min="0"
+                max="100"
+                step="0.1"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="paIR">社保账户年化收益率（默认）</label>
+              <input
+                type="number"
+                id="paIR"
+                value="2.0"
+                min="0"
+                max="20"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label for="bankIR">建行3年定期年化（默认）</label>
+              <input
+                type="number"
+                id="bankIR"
+                value="2.6"
+                min="0"
+                max="10"
+                step="0.01"
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="primary">计算</button>
+            <span class="muted">填写收入、年龄、性别后，点击“计算”。</span>
+          </div>
+        </form>
+
+        <div id="result" role="status" aria-live="polite">
+          填写收入、年龄、性别后，点“计算”
+        </div>
+      </section>
+    </main>
+
+    <footer>© 中华人民共和国国务院@纽约反贼</footer>
+
+    <script>
+      const COUNTING_MONTHS_TABLE = {
+        40: 233,
+        41: 230,
+        42: 226,
+        43: 223,
+        44: 220,
+        45: 216,
+        46: 212,
+        47: 208,
+        48: 204,
+        49: 199,
+        50: 195,
+        51: 190,
+        52: 185,
+        53: 180,
+        54: 175,
+        55: 170,
+        56: 164,
+        57: 158,
+        58: 152,
+        59: 145,
+        60: 139,
+        61: 132,
+        62: 125,
+        63: 117,
+        64: 109,
+        65: 101,
+        66: 93,
+        67: 84,
+        68: 75,
+        69: 65,
+        70: 56,
+      };
+
+      function getCountingMonthsByAge(age) {
+        const a = Math.max(40, Math.min(70, Math.round(age)));
+        return COUNTING_MONTHS_TABLE[a];
+      }
+      const fmt = new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency: "CNY",
+        maximumFractionDigits: 2,
+      });
+
+      function fvOfAnnuity(pmt, i, n) {
+        if (n <= 0) return 0;
+        if (i === 0) return pmt * n;
+        return (pmt * (Math.pow(1 + i, n) - 1)) / i;
+      }
+      function pvOfAnnuity(pmt, i, n) {
+        if (n <= 0) return 0;
+        if (i === 0) return pmt * n;
+        return (pmt * (1 - Math.pow(1 + i, -n))) / i;
+      }
+
+      document
+        .getElementById("pensionForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const annualIncome = parseFloat(
+            document.getElementById("income").value
+          );
+          const age = parseInt(document.getElementById("age").value, 10);
+          const gender = document.getElementById("gender").value;
+
+          const minBaseWage = parseFloat(
+            document.getElementById("minBase").value || "0"
+          );
+          const avgSocialWage = parseFloat(
+            document.getElementById("avgWage").value || "0"
+          );
+
+          const personalContributionRate =
+            parseFloat(document.getElementById("pRate").value) / 100;
+          const companyContributionRate =
+            parseFloat(document.getElementById("cRate").value) / 100;
+          const totalContributionRate =
+            personalContributionRate + companyContributionRate;
+
+          const pensionAccountAnnualIR =
+            parseFloat(document.getElementById("paIR").value) / 100;
+          const bankAnnualIR =
+            parseFloat(document.getElementById("bankIR").value) / 100;
+
+          const retirementAge = gender === "M" ? 63 : 58;
+
+          if (
+            [annualIncome, age].some((v) => isNaN(v)) ||
+            annualIncome < 0 ||
+            age < 0
+          ) {
+            return showErr("输入无效：请确保年收入为正数、年龄为非负整数。");
+          }
+          if (age >= retirementAge) {
+            return showErr(
+              `输入无效：当前年龄应小于退休年龄（${retirementAge}）。`
+            );
+          }
+          if (minBaseWage <= 0) return showErr("缴费基数下限必须大于 0。");
+          if (avgSocialWage <= 0) return showErr("社平工资必须大于 0。");
+          if (totalContributionRate <= 0) return showErr("缴费比例应大于 0%。");
+
+          const contributionYears = retirementAge - age;
+          const monthsToContribute = contributionYears * 12;
+          const monthlyIncome = annualIncome / 12;
+
+          const contributionBase = Math.max(monthlyIncome, minBaseWage);
+
+          const monthlyTotalContribution =
+            contributionBase * totalContributionRate;
+          const monthlyPersonalContribution =
+            contributionBase * personalContributionRate;
+
+          const pensionMonthlyIR =
+            Math.pow(1 + pensionAccountAnnualIR, 1 / 12) - 1;
+          const bankMonthlyIR = Math.pow(1 + bankAnnualIR, 1 / 12) - 1;
+
+          const bankBalanceAtRetirement = fvOfAnnuity(
+            monthlyTotalContribution,
+            bankMonthlyIR,
+            monthsToContribute
+          );
+
+          const personalAccountBalance = fvOfAnnuity(
+            monthlyPersonalContribution,
+            pensionMonthlyIR,
+            monthsToContribute
+          );
+
+          const basicPensionMonthly = avgSocialWage * contributionYears * 0.01;
+          const countingMonths = getCountingMonthsByAge(retirementAge);
+          const personalAcctPensionMonthly =
+            personalAccountBalance / countingMonths;
+          const monthlyPension =
+            basicPensionMonthly + personalAcctPensionMonthly;
+
+          const yearsAfterRetirement = 80 - retirementAge;
+          const nPensionMonths = Math.max(0, yearsAfterRetirement * 12);
+          const pvPensionAtRetirement = pvOfAnnuity(
+            monthlyPension,
+            bankMonthlyIR,
+            nPensionMonths
+          );
+          const lossAtRetirement =
+            bankBalanceAtRetirement - pvPensionAtRetirement;
+
+          const nominalTotalContribution =
+            monthlyTotalContribution * monthsToContribute;
+          let yearsToBreakEven = 0,
+            cum = 0;
+          while (cum < nominalTotalContribution && yearsToBreakEven < 120) {
+            cum += monthlyPension * 12;
+            yearsToBreakEven++;
+          }
+          const breakEvenAge = retirementAge + yearsToBreakEven;
+          const totalContribution = fmt.format(nominalTotalContribution);
+
+          const result = document.getElementById("result");
+          result.classList.remove("err");
+          result.innerHTML = `
+          
+          <p>
+            退休时，您向政府缴了：<b>${totalContribution}</b></p>
+          <p>
+            相比存银行，您亏了：<b>${fmt.format(lossAtRetirement)}</b></p>
+          <p>
+            想要不亏，您至少需要活到：<b>${breakEvenAge} 岁</b></p>
+        `;
+        });
+
+      function showErr(msg) {
+        const el = document.getElementById("result");
+        el.classList.add("err");
+        el.textContent = msg;
+      }
+    </script>
+  </body>
+</html>
